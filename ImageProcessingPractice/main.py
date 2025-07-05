@@ -34,7 +34,7 @@ def main():
         elif opcion == "5":
             if image is not None:
                 image = iu.convert_to_grayscale(image)
-                iu.show_image(image, "Изображение в оттенках серого")
+                iu.show_image(image, "Grayscale image")
             else:
                 print("Изображение не загружено.")
         elif opcion == "6":
@@ -42,7 +42,7 @@ def main():
                 try:
                     angulo = float(input("Введите угол поворота: "))
                     image = iu.rotate_image(image, angulo)
-                    iu.show_image(image, f"Изображение повернуто на {angulo} градусов")
+                    iu.show_image(image, f"Image rotated {angulo} degrees")
                 except ValueError:
                     print("Неверный ввод. Введите число для угла.")
             else:
@@ -55,7 +55,7 @@ def main():
                     x2 = int(input("Введите координату x2: "))
                     y2 = int(input("Введите координату y2: "))
                     image = iu.draw_rectangle(image, x1, y1, x2, y2)
-                    iu.show_image(image, "Изображение с синим прямоугольником")
+                    iu.show_image(image, "Image with blue rectangle")
                 except ValueError:
                     print("Неверный ввод. Введите целые числа для координат.")
             else:
