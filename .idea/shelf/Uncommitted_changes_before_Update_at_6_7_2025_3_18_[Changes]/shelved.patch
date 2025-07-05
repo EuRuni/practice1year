@@ -1,0 +1,313 @@
+Index: ImageProcessingPractice/image_utils.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ImageProcessingPractice/image_utils.py b/ImageProcessingPractice/image_utils.py
+--- a/ImageProcessingPractice/image_utils.py	(revision 6a433cba77839e9b8e158ad9f163f8cbc08869d5)
++++ b/ImageProcessingPractice/image_utils.py	(date 1751746158539)
+@@ -1,0 +1,84 @@
++import cv2
++from tkinter import filedialog, Tk
++
++def select_image():
++    root = Tk()
++    root.withdraw()  # Скрыть главное окно Tkinter
++    file_path = filedialog.askopenfilename(
++        title="Select Image",
++        filetypes=[("Image Files", "*.png *.jpg *.jpeg")]
++    )
++    root.destroy()
++    if file_path:
++        image = cv2.imread(file_path)
++        if image is None:
++            print("Ошибка при загрузке изображения.")
++            return None
++        print(f"Изображение загружено: {file_path}")
++        return image
++    else:
++        print("Файл изображения не выбран.")
++        return None
++
++def capture_from_webcam():
++    cap = cv2.VideoCapture(0)
++    if not cap.isOpened():
++        print("Не удалось открыть камеру.")
++        return None
++
++    print("Нажмите 'Пробел' для захвата, 'Esc' для выхода без захвата.")
++    while True:
++        ret, frame = cap.read()
++        if not ret:
++            print("Ошибка при получении изображения с камеры.")
++            break
++
++        cv2.imshow("Webcam - Press 'Space' to Capture", frame)
++        key = cv2.waitKey(1) & 0xFF
++        if key == 27:  # Esc
++            print("Захват отменен.")
++            break
++        elif key == 32:  # Space
++            cv2.destroyAllWindows()
++            cap.release()
++            print("Изображение успешно захвачено с камеры.")
++            return frame
++
++    cap.release()
++    cv2.destroyAllWindows()
++    return None
++
++def show_image(image, window_name="Image"):
++    cv2.imshow(window_name, image)
++    cv2.waitKey(0)
++    cv2.destroyAllWindows()
++
++def show_channel(image, channel):
++    channels = cv2.split(image)
++    if channel == "R":
++        blank = cv2.merge([channels[2], channels[2], channels[2]])
++        show_image(blank, "Red Channel")
++    elif channel == "G":
++        blank = cv2.merge([channels[1], channels[1], channels[1]])
++        show_image(blank, "Green Channel")
++    elif channel == "B":
++        blank = cv2.merge([channels[0], channels[0], channels[0]])
++        show_image(blank, "Blue Channel")
++    else:
++        print("Неверный канал. Используйте R, G или B.")
++
++def convert_to_grayscale(image):
++    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
++    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
++
++def rotate_image(image, angle):
++    h, w = image.shape[:2]
++    center = (w // 2, h // 2)
++    M = cv2.getRotationMatrix2D(center, angle, 1.0)
++    rotated = cv2.warpAffine(image, M, (w, h))
++    return rotated
++
++def draw_rectangle(image, x1, y1, x2, y2):
++    img_copy = image.copy()
++    cv2.rectangle(img_copy, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Синий цвет в BGR
++    return img_copy
+Index: ImageProcessingPractice/main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># This is a sample Python script.\r\n\r\n# Press Shift+F10 to execute it or replace it with your code.\r\n# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.\r\n\r\n\r\ndef print_hi(name):\r\n    # Use a breakpoint in the code line below to debug your script.\r\n    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.\r\n\r\n\r\n# Press the green button in the gutter to run the script.\r\nif __name__ == '__main__':\r\n    print_hi('PyCharm')\r\n\r\n# See PyCharm help at https://www.jetbrains.com/help/pycharm/\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ImageProcessingPractice/main.py b/ImageProcessingPractice/main.py
+--- a/ImageProcessingPractice/main.py	(revision 6a433cba77839e9b8e158ad9f163f8cbc08869d5)
++++ b/ImageProcessingPractice/main.py	(date 1751746253344)
+@@ -1,16 +1,70 @@
+-# This is a sample Python script.
++import image_utils as iu
+ 
+-# Press Shift+F10 to execute it or replace it with your code.
+-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
++def main():
++    image = None
+ 
++    while True:
++        print("\n--- МЕНЮ ОПЦИЙ ---")
++        print("1. Выбрать изображение из файла")
++        print("2. Сделать снимок с веб-камеры")
++        print("3. Показать текущее изображение")
++        print("4. Показать канал (R/G/B)")
++        print("5. Преобразовать изображение в оттенки серого")
++        print("6. Повернуть изображение")
++        print("7. Нарисовать синий прямоугольник")
++        print("8. Выйти из программы")
+ 
+-def print_hi(name):
+-    # Use a breakpoint in the code line below to debug your script.
+-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
++        opcion = input("Выберите опцию: ")
+ 
++        if opcion == "1":
++            image = iu.select_image()
++        elif opcion == "2":
++            image = iu.capture_from_webcam()
++        elif opcion == "3":
++            if image is not None:
++                iu.show_image(image, "Current image")
++            else:
++                print("Изображение не загружено.")
++        elif opcion == "4":
++            if image is not None:
++                canal = input("Введите канал для отображения (R/G/B): ").upper()
++                iu.show_channel(image, canal)
++            else:
++                print("Изображение не загружено.")
++        elif opcion == "5":
++            if image is not None:
++                image = iu.convert_to_grayscale(image)
++                iu.show_image(image, "Изображение в оттенках серого")
++            else:
++                print("Изображение не загружено.")
++        elif opcion == "6":
++            if image is not None:
++                try:
++                    angulo = float(input("Введите угол поворота: "))
++                    image = iu.rotate_image(image, angulo)
++                    iu.show_image(image, f"Изображение повернуто на {angulo} градусов")
++                except ValueError:
++                    print("Неверный ввод. Введите число для угла.")
++            else:
++                print("Изображение не загружено.")
++        elif opcion == "7":
++            if image is not None:
++                try:
++                    x1 = int(input("Введите координату x1: "))
++                    y1 = int(input("Введите координату y1: "))
++                    x2 = int(input("Введите координату x2: "))
++                    y2 = int(input("Введите координату y2: "))
++                    image = iu.draw_rectangle(image, x1, y1, x2, y2)
++                    iu.show_image(image, "Изображение с синим прямоугольником")
++                except ValueError:
++                    print("Неверный ввод. Введите целые числа для координат.")
++            else:
++                print("Изображение не загружено.")
++        elif opcion == "8":
++            print("Выход из программы...")
++            break
++        else:
++            print("Неверная опция. Попробуйте снова.")
+ 
+-# Press the green button in the gutter to run the script.
+-if __name__ == '__main__':
+-    print_hi('PyCharm')
+-
+-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
++if __name__ == "__main__":
++    main()
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"b3fe1718-4651-40de-83b7-3fd109cc49b4\" name=\"Changes\" comment=\"\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\"><![CDATA[{\r\n  \"associatedIndex\": 2\r\n}]]></component>\r\n  <component name=\"ProjectId\" id=\"2zOgOA23hKZQaKQYBw1SNBPQC8E\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"git-widget-placeholder\": \"master\"\r\n  }\r\n}]]></component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-python-sdk-f78a9d071105-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.26574.90\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"b3fe1718-4651-40de-83b7-3fd109cc49b4\" name=\"Changes\" comment=\"\" />\r\n      <created>1751607499879</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1751607499879</updated>\r\n    </task>\r\n    <servers />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 6a433cba77839e9b8e158ad9f163f8cbc08869d5)
++++ b/.idea/workspace.xml	(date 1751746355622)
+@@ -1,34 +1,64 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="b3fe1718-4651-40de-83b7-3fd109cc49b4" name="Changes" comment="" />
++    <list default="true" id="b3fe1718-4651-40de-83b7-3fd109cc49b4" name="Changes" comment="">
++      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/practice.iml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/ImageProcessingPractice/README.md" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/ImageProcessingPractice/image_utils.py" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/ImageProcessingPractice/main.py" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/ImageProcessingPractice/test_pytorch.py" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+     <option name="LAST_RESOLUTION" value="IGNORE" />
+   </component>
++  <component name="FileTemplateManagerImpl">
++    <option name="RECENT_TEMPLATES">
++      <list>
++        <option value="Python Script" />
++      </list>
++    </option>
++  </component>
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+-  <component name="ProjectColorInfo"><![CDATA[{
+-  "associatedIndex": 2
+-}]]></component>
++  <component name="ProjectColorInfo">{
++  &quot;associatedIndex&quot;: 2
++}</component>
+   <component name="ProjectId" id="2zOgOA23hKZQaKQYBw1SNBPQC8E" />
+-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
++  <component name="ProjectLevelVcsManager">
++    <ConfirmationsSetting value="2" id="Add" />
++  </component>
+   <component name="ProjectViewState">
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "git-widget-placeholder": "master"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;Python.main.executor&quot;: &quot;Run&quot;,
++    &quot;Python.test_pytorch.executor&quot;: &quot;Run&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;master&quot;
+   }
+-}]]></component>
++}</component>
++  <component name="RecentsManager">
++    <key name="MoveFile.RECENT_KEYS">
++      <recent name="C:\Users\ianlo\OneDrive\Escritorio\practice\ImageProcessingPractice" />
++    </key>
++  </component>
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+-        <option value="bundled-python-sdk-f78a9d071105-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.26574.90" />
++        <option value="bundled-python-sdk-598b0484d0b5-e2d783800521-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-251.26927.74" />
+       </set>
+     </attachedChunks>
+   </component>
+@@ -43,4 +73,14 @@
+     </task>
+     <servers />
+   </component>
++  <component name="XDebuggerManager">
++    <breakpoint-manager>
++      <breakpoints>
++        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
++          <url>file://$PROJECT_DIR$/ImageProcessingPractice/image_utils.py</url>
++          <option name="timeStamp" value="1" />
++        </line-breakpoint>
++      </breakpoints>
++    </breakpoint-manager>
++  </component>
+ </project>
+\ No newline at end of file
+Index: .idea/practice.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<module type=\"PYTHON_MODULE\" version=\"4\">\r\n  <component name=\"NewModuleRootManager\">\r\n    <content url=\"file://$MODULE_DIR$\" />\r\n    <orderEntry type=\"inheritedJdk\" />\r\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\r\n  </component>\r\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/practice.iml b/.idea/practice.iml
+--- a/.idea/practice.iml	(revision 6a433cba77839e9b8e158ad9f163f8cbc08869d5)
++++ b/.idea/practice.iml	(date 1751607694340)
+@@ -1,8 +1,10 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <module type="PYTHON_MODULE" version="4">
+   <component name="NewModuleRootManager">
+-    <content url="file://$MODULE_DIR$" />
+-    <orderEntry type="inheritedJdk" />
++    <content url="file://$MODULE_DIR$">
++      <excludeFolder url="file://$MODULE_DIR$/.venv" />
++    </content>
++    <orderEntry type="jdk" jdkName="Python 3.8 (practice)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+ </module>
+\ No newline at end of file
+diff --git a/ImageProcessingPractice/README.md b/ImageProcessingPractice/README.md
+deleted file mode 100644
