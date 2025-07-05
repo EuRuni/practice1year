@@ -19,7 +19,6 @@ ImageProcessingPractice/
 ├── main.py              # Главный скрипт с меню
 ├── image_utils.py       # Функции для обработки изображений
 ├── requirements.txt     # Файл зависимостей
-├── README.md            # Описание проекта и инструкция
 └── test_pytorch.py      # Проверка установленного PyTorch
 ```
 
