@@ -19,12 +19,15 @@ class AppGUI:
 
         tk.Button(btn_frame, text="Загрузить изображение", command=self.load_image).grid(row=0, column=0, padx=5)
         tk.Button(btn_frame, text="Сделать снимок", command=self.capture_image).grid(row=0, column=1, padx=5)
-        tk.Button(btn_frame, text="В оттенки серого", command=self.to_grayscale).grid(row=0, column=2, padx=5)
-        tk.Button(btn_frame, text="Показать фильтр RGB", command=self.open_rgb_filter_window).grid(row=0, column=3, padx=5)
-        tk.Button(btn_frame, text="Повернуть изображение", command=self.open_rotate_window).grid(row=0, column=4, padx=5)
-        tk.Button(btn_frame, text="Нарисовать прямоугольник", command=self.open_rectangle_window).grid(row=0, column=5, padx=5)
-        tk.Button(btn_frame, text="Сбросить изображение", command=self.reset_image).grid(row=0, column=6, padx=5)
-        tk.Button(btn_frame, text="Выйти", command=self.root.quit).grid(row=0, column=7, padx=5)
+        tk.Button(btn_frame, text="Показать фильтр RGB", command=self.open_rgb_filter_window).grid(row=0, column=2,
+                                                                                                   padx=5)
+        tk.Button(btn_frame, text="В оттенки серого", command=self.to_grayscale).grid(row=1, column=0, padx=5)
+        tk.Button(btn_frame, text="Повернуть изображение", command=self.open_rotate_window).grid(row=1, column=1,
+                                                                                                 padx=5)
+        tk.Button(btn_frame, text="Нарисовать прямоугольник", command=self.open_rectangle_window).grid(row=1, column=2,
+                                                                                                       padx=5)
+        tk.Button(btn_frame, text="Сбросить изображение", command=self.reset_image).grid(row=2, column=0, padx=5)
+        tk.Button(btn_frame, text="Выйти", command=self.root.quit).grid(row=2, column=1, padx=5)
 
     def load_image(self):
         self.image = iu.select_image()
