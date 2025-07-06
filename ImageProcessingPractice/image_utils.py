@@ -82,3 +82,14 @@ def draw_rectangle(image, x1, y1, x2, y2):
     img_copy = image.copy()
     cv2.rectangle(img_copy, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Синий цвет в BGR
     return img_copy
+
+def get_channel_image(image, channel):
+    channels = cv2.split(image)
+    if channel == "R":
+        return cv2.merge([channels[2], channels[2], channels[2]])
+    elif channel == "G":
+        return cv2.merge([channels[1], channels[1], channels[1]])
+    elif channel == "B":
+        return cv2.merge([channels[0], channels[0], channels[0]])
+    else:
+        return None
